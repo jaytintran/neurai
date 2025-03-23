@@ -1,4 +1,6 @@
-## Introduction
+# Neurai - Introduction
+
+![image](https://github.com/user-attachments/assets/961c7bd6-fe43-4f7e-826d-99af0cba6866)
 
 Neurai is an Image Face Recognition App built with React, TailwindCSS, Vite, Express, MongoDB, and React Router. This app allows users to upload images, detect faces.
 
