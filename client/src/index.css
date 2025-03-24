@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -11,24 +11,23 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: theme('colors.cyber.dark');
+  background-color: theme("colors.cyber.dark");
   color: white;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
 .cyberpunk-border {
   @apply relative;
   &::before {
-    content: '';
+    content: "";
     @apply absolute -inset-0.5 bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink rounded-lg blur opacity-75 transition-opacity group-hover:opacity-100;
   }
 }
 
 .neon-text {
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 0 0 10px theme('colors.neon.blue'),
-               0 0 20px theme('colors.neon.blue'),
-               0 0 30px theme('colors.neon.blue');
+  text-shadow: 0 0 10px theme("colors.neon.blue"),
+    0 0 20px theme("colors.neon.blue"), 0 0 30px theme("colors.neon.blue");
 }
