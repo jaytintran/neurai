@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { FaLink } from "react-icons/fa";
-import Rank from "../Rank";
-
+import { useAuth } from "@/context/AuthContext";
+import Rank from "@/components/ui/Rank";
 import ImageUploader from "./ImageUploader";
 import BoundingBoxes from "./BoundingBoxes";
 
@@ -9,11 +9,14 @@ import BoundingBoxes from "./BoundingBoxes";
 const API_URL = "http://localhost:5000/detect";
 
 // Utility function for face detection API call
-const detectFaces = async (imageUrl) => {
+const detectFaces = async (imageUrl, token) => {
   try {
     const response = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ imageUrl }),
     });
     if (!response.ok) throw new Error("API request failed");
@@ -25,48 +28,56 @@ const detectFaces = async (imageUrl) => {
   }
 };
 
-const detectFacesFromFile = async (imageData) => {
+const detectFacesFromFile = async (imageData, token) => {
   try {
     const response = await fetch("http://localhost:5000/detect-file", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ imageData }),
     });
     const data = await response.json();
     return data.outputs?.[0]?.data?.regions || [];
   } catch (error) {
     console.error("Error detecting faces from file:", error);
-    return []; // Fallback to empty array
+    return [];
   }
 };
 
 function ImageRecognition() {
-  const isAuthenticated = true; // This would come from your auth context/state
-
+  const { user, updateEntries } = useAuth();
   const [imageUrl, setImageUrl] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [submitted, setSubmitted] = useState(false); // Track form submission
-
+  const [submitted, setSubmitted] = useState(false);
   const [faces, setFaces] = useState([]);
-  const imageRef = useRef(null); // Declare imgRef
-
+  const imageRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDetectFaces = useCallback(async () => {
-    if (!imageUrl) return;
+    if (!imageUrl || !user) return;
     setIsLoading(true);
-    const detectedFaces = await detectFaces(imageUrl);
+    const token = localStorage.getItem("token");
+    const detectedFaces = await detectFaces(imageUrl, token);
+    if (detectedFaces.length > 0) {
+      await updateEntries();
+    }
     setFaces(detectedFaces);
     setIsLoading(false);
-  }, [imageUrl]);
+  }, [imageUrl, user, updateEntries]);
 
   const handleDetectFacesFromFile = useCallback(async () => {
-    if (!uploadedImage) return;
+    if (!uploadedImage || !user) return;
     setIsLoading(true);
-    const detectedFaces = await detectFacesFromFile(uploadedImage);
+    const token = localStorage.getItem("token");
+    const detectedFaces = await detectFacesFromFile(uploadedImage, token);
+    if (detectedFaces.length > 0) {
+      await updateEntries();
+    }
     setFaces(detectedFaces);
     setIsLoading(false);
-  }, [uploadedImage]);
+  }, [uploadedImage, user, updateEntries]);
 
   const handleUrlSubmit = (e) => {
     setSubmitted(true);
@@ -83,12 +94,12 @@ function ImageRecognition() {
   const handleImageUpload = (e) => {
     setSubmitted(true);
     e.preventDefault();
-    handleDetectFacesFromFile(); // Call after state is set
+    handleDetectFacesFromFile();
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      {isAuthenticated && <Rank />}
+      {user && <Rank />}
       <h2 className="text-3xl font-bold mb-8 text-center neon-text">
         FACE RECOGNITION SCANNER
       </h2>
@@ -119,15 +130,13 @@ function ImageRecognition() {
           </form>
         </div>
 
-        {/* Display upload box if no image is uploaded and no URL is provided */}
         {!uploadedImage && !imageUrl && (
           <div className="border-t border-neon-blue/30 pt-8">
             <ImageUploader onImageUpload={onImageUpload} />
           </div>
         )}
 
-        {/* Image and Bounding Boxes for URL */}
-        <div className="relative mt-4">
+        <div className="relative mt-4 max-w-3xl mx-auto">
           {uploadedImage && (
             <img
               ref={imageRef}
@@ -145,7 +154,6 @@ function ImageRecognition() {
             />
           )}
 
-          {/* Bounding Boxes */}
           <BoundingBoxes faces={faces} imageRef={imageRef} />
         </div>
       </div>

@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { FaRobot, FaBrain, FaFingerprint } from "react-icons/fa";
-import Rank from "../ui/Rank";
-
-const isAuthenticated = true;
+import { useAuth } from "@/context/AuthContext";
+import Rank from "@/components/ui/Rank";
 
 function Home() {
+  const { user } = useAuth();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center">
-        {isAuthenticated ? (
+        {user ? (
           <Rank />
         ) : (
           <>
@@ -23,10 +24,10 @@ function Home() {
         )}
 
         <Link
-          to={isAuthenticated ? `/recognition` : `/signin`}
+          to={user ? `/recognition` : `/signin`}
           className="inline-block px-8 py-3 rounded-lg bg-gradient-to-r from-neon-blue to-neon-purple hover:shadow-neon transition-shadow"
         >
-          {isAuthenticated ? "Scan Now" : "Get Started"}
+          {user ? "Scan Now" : "Get Started"}
         </Link>
       </div>
 

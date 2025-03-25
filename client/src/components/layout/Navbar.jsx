@@ -1,13 +1,20 @@
+/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import { FaBrain, FaToggleOff, FaToggleOn } from "react-icons/fa";
+import { FaBrain, FaToggleOff, FaToggleOn, FaSignOutAlt } from "react-icons/fa";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
-// eslint-disable-next-line react/prop-types
 function Navbar({ setBackground }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOn, setIsOn] = useState(true);
+  const { user, logout } = useAuth();
+
   const toggleBackground = () => {
-    setIsOpen(!isOpen);
+    setIsOn(!isOn);
     setBackground((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -20,27 +27,43 @@ function Navbar({ setBackground }) {
           </Link>
           <div className="flex items-center space-x-4">
             <button
-              onClick={toggleBackground} // Call the toggle function
-              className="px-4 py-2 rounded-md "
+              onClick={toggleBackground}
+              className="flex items-center space-x-2 px-4 py-2 rounded-md transition-all duration-300 hover:text-neon-blue"
             >
-              {isOpen ? (
-                <FaToggleOn className="h-10 w-10 text-neon-blue" />
+              {isOn ? (
+                <FaToggleOn className="h-8 w-8 text-neon-blue transition-all duration-300" />
               ) : (
-                <FaToggleOff className="h-10 w-10 text-neon-blue" />
+                <FaToggleOff className="h-8 w-8 text-gray-500 transition-all duration-300" />
               )}
+              <span className="text-sm font-medium">Particles</span>
             </button>
-            <Link
-              to="/signin"
-              className="px-4 py-2 rounded-md bg-cyber-light border border-neon-pink hover:shadow-neon-pink transition-shadow"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/register"
-              className="px-4 py-2 rounded-md bg-neon-blue text-cyber-dark hover:shadow-neon transition-shadow"
-            >
-              Register
-            </Link>
+            {user ? (
+              <>
+                <span className="text-neon-blue">{user.name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-md bg-cyber-light border border-neon-pink hover:shadow-neon-pink transition-shadow"
+                >
+                  <FaSignOutAlt />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/signin"
+                  className="px-4 py-2 rounded-md bg-cyber-light border border-neon-pink hover:shadow-neon-pink transition-shadow"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 rounded-md bg-neon-blue text-cyber-dark hover:shadow-neon transition-shadow"
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

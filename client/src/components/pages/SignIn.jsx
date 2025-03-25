@@ -1,19 +1,37 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 function SignIn() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle sign in logic here
+    setError("");
+
+    const result = await login(email, password);
+    if (result.success) {
+      navigate("/recognition");
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
     <div className="max-w-md mx-auto px-4 py-12">
       <div className="bg-cyber-light p-8 rounded-lg border border-neon-blue/30">
-        <h2 className="text-3xl font-bold mb-6 text-center neon-text">SIGN IN</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center neon-text">
+          SIGN IN
+        </h2>
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-md text-red-500">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-2">Email</label>
@@ -43,8 +61,11 @@ function SignIn() {
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-400">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-neon-blue hover:text-neon-purple">
+          Don&apos;t have an account?{" "}
+          <Link
+            to="/register"
+            className="text-neon-blue hover:text-neon-purple"
+          >
             Register here
           </Link>
         </p>
